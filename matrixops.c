@@ -62,19 +62,14 @@ double* getHouseval(){
 double** append(int rows,int cols,double** matrixb,double**matrixa){
     
     int i=0, j=0;
-    printf("SMURF\n");
-    printf("rows:   %d,cols:   %d\n",rows,cols);
 
     while(i < rows){
-        printf("LA1\n");
+    
         matrixb[i]=(double*) malloc(cols*sizeof(double));
         while(j < cols){
-            printf("LA2\n");
-            if(i==0){
-                printf("IF 1\n");
+            if(j==0){
                 matrixb[i][j]=1;
             }else{
-                printf("IF 2\n");
                 matrixb[i][j]=matrixa[i][j-1];
             }
             j++;

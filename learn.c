@@ -87,7 +87,7 @@ int main(int argc,char **argv){
     
     /* matrix operations begin
      *
-     * extract data from the buffer and enter information into data strcutures 
+     * extract data from the buffer and enter information into data structures 
      *
      * */
     
@@ -99,9 +99,9 @@ int main(int argc,char **argv){
      *
      * */
 
-	double **matrixInsert = (double **)malloc(train * sizeof(double*));
-    double **matrixa = insertMatrix(train,attr,matrixInsert,buffer,q);
-    double *houseval = getHouseval();
+	double** matrixInsert = (double **)malloc(train * sizeof(double*));
+    double** matrixa = insertMatrix(train,attr,matrixInsert,buffer,q);
+    double* houseval = getHouseval();
     
 
 // prints out the results of the train and the house values
@@ -109,7 +109,7 @@ int main(int argc,char **argv){
     int ut = 0;
 	while(ui<train){
 	   while(ut<attr){
-		printf("%f      ",matrixa[ui][ut]);
+		printf("%f :)      ",matrixa[ui][ut]);
 		ut++;
 	   }
 	printf("\n");
@@ -119,54 +119,22 @@ int main(int argc,char **argv){
 	
     free(buffer); // freeing memory space <!---------------------------->
 
-	int rows = train;
-	int cols = attr + 1;
+	/*
+     *
+     * Append a column of value 1 to the matrix
+     *  - new matrix will have additional column
+     *
+    */
 
-	// now to append col 1 to matrix x
-    
-    //double**appendMatrix=(double**)malloc(sizeof(double*)*cols);
-	double matrixb[rows][cols];
-	
-	int i = 0;
-	int id = 0;
+    int rows = train;
+    int cols = attr+1;
+    double**appendMatrix=(double**)malloc(sizeof(double*)*rows);
+    double** matrixb=append(rows,cols,appendMatrix,matrixa);
 
-    ui = 0;
-	
-    
-	int yu = 0;
-	int yip = 0;
-	while(yu < rows){
-	   while(yip < (cols)){
-		if(yip == 0){
-		matrixb[yu][yip] = 1;
-		}
-		else{
-		matrixb[yu][yip] = matrixa[yu][yip-1];
-		}
-	   yip++;	
-	   }
-	yip = 0;
-	yu++;
-	}
-    
-    //double** matrixb=append(rows,cols,appendMatrix,matrixa);
+     
 
-    
-	// printing the new matrix b with appended 1
-/*
- 	printf("------------bbbbbbbbb---------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<train){
-	   while(ut<attr+1){
-		printf("%f      ",matrixb[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/
+    int i=0,id=0;
+    ui=0;
 	//	transpose(rows,cols,matrixb);
 
 
@@ -201,7 +169,7 @@ int main(int argc,char **argv){
 */
 	i = 0;
 	id = 0;
-	yu = 0;
+	int yu = 0;
 
 	double result[cols][cols];
 
