@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "matrixops.h"
 
@@ -21,6 +22,22 @@ void printMatrix(double **matrix,int rows,int cols){
     }
 }
 
+static int q = 0; //reference to placement in buffer
+
+int getNum(char*number,char*buffer,int size){
+    
+    int y = 0;
+    bzero(number,sizeof(char)*size);
+
+    while(buffer[q] != '\n'){
+       number[y] = buffer[q];
+       y++;
+       q++;
+    }
+    ++q; // move past "new line" (\n) character
+    return atoi(number);
+}
+
 int main(int argc,char **argv){
 
 	if(argc != 3){ // if there were ever more or less inputs
@@ -28,68 +45,27 @@ int main(int argc,char **argv){
 	    return 0;
 	} 
 
-    int fd, fe;
-    fd = open(argv[1],O_RDONLY);
-    fe = open(argv[2],O_RDONLY);
+    int numByte=600000;
 
-    if(fd==-1 || fe==-1){
-        printf("6error\n");
-       return 0;
-	}
-	
-	int numByte = 600000;
+    char* buff = (char*) malloc(sizeof(char)*numByte);
+    char* buff2 = (char*) malloc(sizeof(char)*numByte);
+   
+    bzero(buff,numByte);
+    bzero(buff2,numByte);
 
-	char *buffer = (char*) malloc(sizeof(char)*numByte);
-	char *buffer2 = (char*) malloc(sizeof(char)*numByte);
-    
-	if(buffer == NULL || buffer2 == NULL){
-	   printf("8error");
-	   return 0;
-	}
+    if(buff == NULL || buff2 == NULL){
+        printf("8error \n");
+        return 0;
+    }
 
-    bzero(buffer,numByte);
-    bzero(buffer2,numByte);
-	int byteRead = -5; //= read(fd,buffer,sizeof(buffer));
+    /*
+     * buffer contains train file
+     * buffer2 contains test file
+     *
+     */
 
-	int byteRead2 = read(fe,buffer2,sizeof(buffer2));   
-	int increase1 = 0;
-	int increase2 = 0;
-    
-    /* start reading from the train file */
-	while(byteRead != 0){ 
-	   if(byteRead == -1){
-	      printf("2error\n");
-	      return 0;
-	   }else{
-	      //increase size of buffer
-	      byteRead = read(fd,buffer+increase1,5);
-          printf("%s   \n", buffer);
-          printf("====================\n");
-	   }
-       increase1+=5;
-	}
-
-
-
-    /* start reading from the test file */
-	while(byteRead2 != 0){ 
-	   increase2+=5;
-	   if(byteRead2 == -1){
-	      printf("3error\n");
-	      return 0;
-	   }else{
-	      //increase size of buffer
-	      byteRead2 = read(fe,buffer2+increase2, 5);
-          printf("%s     \n", buffer2);
-          printf("===================\n");
-	   }
-	}
-
-	//buffer contains train file
-	//buffer2 contains test file
-//	printf("%s\n",buffer);
-//	printf("============================\n");
-//	printf("%s\n",buffer2);
+    char* buffer = extractFl(buff,argv[1]);
+    char* buffer2 = extractFl(buff2,argv[2]);
 	
 	/* 
      * Begin to extract data about the matrices from the text files
@@ -99,35 +75,16 @@ int main(int argc,char **argv){
      * 
      * */
 
-	char num1[15]; //char array for the number
-	int y=0,q=0;
-
-    bzero(num1,sizeof(char)*15);
-
-	while(buffer[q] != '\n'){ //now have a char array of the number
-	   num1[y] = buffer[q];
-	   y++;
-	   q++;
-	}
-
-	int attr = atoi(num1); // number of attributes (columns)
-
-	q++;  // move past the "new line"
+    int size = 15;
+    char* num1=(char*)malloc(sizeof(char*)*size);
+    int attr = getNum(num1,buffer,size);
+    free(num1);
 	
-	char num2[10]; //char array for the number
-	y=0;
+    char* num2=(char*)malloc(sizeof(char*)*size);
+    int train = getNum(num2,buffer,size);
+    free(num2);
+
     
-    bzero(num2,sizeof(char)*10);
-
-	while(buffer[q] != '\n'){ //now have a char array of the number
-	   num2[y] = buffer[q];
-	   y++;
-	   q++;
-	}
-	int train = atoi(num2); // number of train data sets (rows)
-
-	q++; // move past the new line
-	
     /* matrix operations begin
      *
      * extract data from the buffer and enter information into data strcutures 
@@ -146,48 +103,7 @@ int main(int argc,char **argv){
     double **matrixa = insertMatrix(train,attr,matrixInsert,buffer,q);
     double *houseval = getHouseval();
     
-/*
-    double matrixa[train][attr];
-	int count1 = 0;
-	int count2 = 0;
-	int a = 0, b = 0;
-    double num3;
 
-	char inputs[25]; 
-	double houseval[train];	
-    
-	while(count1 < train){ // move across rows
-
-        while(count2 <= attr){ //move across columns
-
-            a = 0;
-	  
-	        while(buffer[q] != ',' && buffer[q] != '\n'){ //read number
-		        inputs[a] = buffer[q];
-		        a++;
-		        q++;
-  	        }
-        
-	        num3 = atof(inputs); // char number has been converted to a double
-	        if(count2 < attr){ // for matrix population
-	            matrixa[count1][count2] = num3;
-	        }
-	        if(count2 == attr){ // for the house value
-                houseval[count1] = num3;
-	        }
-	      
-	        b = 0;
-	        while(b<25){
-	            inputs[b] = 0.0;
-	            b++;
-	        }
-	        count2++;
-  	        q++;
-	    }
-	    count2 = 0;
-        count1++;
-	}
-*/
 // prints out the results of the train and the house values
     int ui = 0;
     int ut = 0;
@@ -200,49 +116,27 @@ int main(int argc,char **argv){
 	ui++;
 	ut = 0;
 	}
-
-
-/*	printf("---------------------------------------\n");
-	ui = 0;
-	while(ui<train){
-	printf("%f\n",houseval[ui]);
-	ui++;
-	}
-	printf("----------------------------------------\n");
-*/
-        // houseval = y
-        // matrixa = x
-
 	
-    free(buffer); // freeing memory space
+    free(buffer); // freeing memory space <!---------------------------->
 
 	int rows = train;
 	int cols = attr + 1;
 
 	// now to append col 1 to matrix x
-
+    
+    //double**appendMatrix=(double**)malloc(sizeof(double*)*cols);
 	double matrixb[rows][cols];
 	
 	int i = 0;
 	int id = 0;
 
     ui = 0;
-	// int ut = 0;
-    /*
-	while(ui<train){
-	   while(ut<attr+1){
-		matrixb[ui][ut] = 0.0;
-		ut++;
-	   }
-	ui++;
-	ut = 0;
-	}
-    */
-
+	
+    
 	int yu = 0;
 	int yip = 0;
-	while(yu < train){
-	   while(yip < (attr+1)){
+	while(yu < rows){
+	   while(yip < (cols)){
 		if(yip == 0){
 		matrixb[yu][yip] = 1;
 		}
@@ -254,6 +148,10 @@ int main(int argc,char **argv){
 	yip = 0;
 	yu++;
 	}
+    
+    //double** matrixb=append(rows,cols,appendMatrix,matrixa);
+
+    
 	// printing the new matrix b with appended 1
 /*
  	printf("------------bbbbbbbbb---------------\n");
@@ -617,7 +515,7 @@ int main(int argc,char **argv){
 	}
 */
 	//final step!!! begin dissecting buffer2
-	
+	int y;
 	q = 0;
 	y = 0;
 	char numRow[20];

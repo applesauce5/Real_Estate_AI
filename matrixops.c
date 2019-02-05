@@ -4,8 +4,12 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
+
 
 #include "matrixops.h"
+
+extern int errno;
 
 double* houseval;
 
@@ -50,6 +54,70 @@ double** insertMatrix(int rows, int cols, double **matrix, char* buffer, int q){
     }
    return matrix;    
 }
+
 double* getHouseval(){
     return houseval;
 }
+
+double** append(int rows,int cols,double** matrixb,double**matrixa){
+    
+    int i=0, j=0;
+    printf("SMURF\n");
+    printf("rows:   %d,cols:   %d\n",rows,cols);
+
+    while(i < rows){
+        printf("LA1\n");
+        matrixb[i]=(double*) malloc(cols*sizeof(double));
+        while(j < cols){
+            printf("LA2\n");
+            if(i==0){
+                printf("IF 1\n");
+                matrixb[i][j]=1;
+            }else{
+                printf("IF 2\n");
+                matrixb[i][j]=matrixa[i][j-1];
+            }
+            j++;
+        }
+        j=0;
+        i++;
+    }
+    
+    return matrixb;
+}
+
+char* extractFl(char* buffer ,const char* path){
+   
+    int fd = open(path,O_RDONLY);
+    // int errnum;
+
+    if(fd == -1){
+        //errnum=errno;
+        fprintf(stderr,"Value of errno: %d\n", errno);
+        printf("Error opening file\n");
+        //fprintf(stderr,"Error opening file: %s \n", strerror( errnum ));
+        exit(0);
+    }
+
+    int byteRead=0, increase=0;
+
+    do{
+        if(byteRead==-1){
+            fprintf(stderr,"Value of errno: %d\n", errno);
+            printf("byteRead error on reading file");
+            exit(0);
+        }else{
+            byteRead= read(fd,buffer+increase,5);
+            printf("%s     \n",buffer);
+            printf("======================\n");
+        }
+        increase+=5;
+    }while(byteRead !=0);
+
+    close(fd);
+
+    return buffer; // file has been read into the buffer
+}
+
+
+
