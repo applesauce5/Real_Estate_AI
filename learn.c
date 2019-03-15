@@ -102,9 +102,9 @@ int main(int argc,char **argv){
 	double** matrixInsert = (double **)malloc(train * sizeof(double*));
     double** matrixa = insertMatrix(train,attr,matrixInsert,buffer,q);
     double* houseval = getHouseval();
-    
 
-// prints out the results of the train and the house values
+
+    // prints out the results of the train and the house values
     int ui = 0;
     int ut = 0;
 	while(ui<train){
@@ -131,235 +131,39 @@ int main(int argc,char **argv){
     double**appendMatrix=(double**)malloc(sizeof(double*)*rows);
     double** matrixb=append(rows,cols,appendMatrix,matrixa);
 
-     
+	/*
+     *
+     * Created an initialized the transpose of the matrix
+     *
+     */
 
-    int i=0,id=0;
-    ui=0;
-	//	transpose(rows,cols,matrixb);
+    double**matrixc=transpose(rows,cols,matrixb);
 
+    // <!--------------------------------------------------->
 
-	// find the transpose double matrixc[cols][rows]; // to be transpose of matrix b
+	//double result[cols][cols];
+    double** initResult=(double**)malloc(sizeof(double*)*cols);
+    double** result=multiply(initResult,matrixb,matrixc,rows,cols);
 
-	double matrixc[cols][rows];
-	i = 0;
-	id = 0;
-
-	while(i<cols){
-	   while(id<rows){
-		matrixc[i][id] = matrixb[id][i];
-	        id++;
-	   }
-	id = 0;
-	i++;
-	}
-
-       	// prints out the transpose of matrixb, matrixc
-/*	printf("-------------tttttt--------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<cols){
-	   while(ut<rows){
-		printf("%f  ",matrixc[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/
-	i = 0;
-	id = 0;
-	int yu = 0;
-
-	double result[cols][cols];
-
-/*	while(id < cols){
-	   while(i<cols){
-	   result[i][id] = '\0';
-	   i++;
-	   }
-	i = 0;
-	id++;
-	}*/
-	i = 0;
-	id = 0;
-// printf("element1   : %f\n",matrixc[0][0]);/////////////////////////////
-
-    /* transpose of matrix b times matrix b  */
-	while(i < cols){ 
-	   while(id < cols){//-1){
-		result[i][id] = 0.0;
-		while(yu < rows){
-	        // printf("c[0][0] is %f i%d|id%d|yu%d\n", matrixc[0][0], i, id, yu);
-			result[i][id] += matrixc[i][yu]*matrixb[yu][id];
-			yu++;
-		}
-		
-	   yu = 0;
-	   id++;
-	   }
-	id = 0;
-	i++;
-	}
-// printf("element2   : %f\n",matrixc[0][0]);/////////////////////////////
-/*	printf("-------------ccccc22222--------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<cols){
-	   while(ut<rows){
-		printf("%f  ",matrixc[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/
-	i = 0;
-	id = 0;
-	yu = 0;
-/*
-	//this is the product of x^t and x
-	printf("-------------000--------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<cols){
-	   while(ut<cols){
-		printf("%f  ",result[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/
-
-	// now to begin to calculate the inverse of the product
-	//
-	//
-	//
-	
-	// first append an identity matrix of i^cols to results
-	int appends = 2*cols;	
-
-	double append[cols][appends];
-
-	int counta = 0;
-
-	int h = 0;
-	int l = 0;
-	while(h<cols){
-	   while(l<appends){
-	   
-	   if(l < cols){
-	   append[h][l] = result[h][l];
-	   }
-
-	   if(l >= cols){		
-	   append[h][l] = 0;
-	   }
-	   if(l == appends - 1){
-		append[h][cols+counta] = 1;
-	   }
-	   l++;
-	   }
-	counta++;
-	l=0;
-	h++;
-	}
-	//identity matrix augmented to the product matrix
- /*
-	printf("-------------000--------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<cols){
-	   while(ut<appends){
-		printf("%f  ",append[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/
+    /*
+	* 
+    * now to begin to calculate the inverse of the product
+	*
+    * first append an identity matrix of i^cols to results
+    *
+	*/
+    
+    int appends = 2*cols;
+    double** insertAppend=(double**)malloc(sizeof(double*)*cols);
+    double** append = appendIdentity(insertAppend,result,cols,appends);
+    
 
 	// now to perform gauss-jordan elimination
-	i = 0;
+	int i = 0;
 	int j = 0;
-	int jip = 0;
-	int yt = 0;
-	double num9 = 0.0;
-	double key = 0;
 
-	while(i < cols){
-	   if(append[i][i] == 0){ // this matrix is not invertible
-		printf("error10\n");
-		return 0;
-	   }
-	   if(append[i][i] != 1.0){ // this column has potential pivot
-		j=0;
-		key = append[i][i];
-	   	while(j<appends){
-		   if(append[i][j] != 0.0){
-		   append[i][j] = (append[i][j]/key);
-		   }
-		   j++;
-		}
-	   }
-	   
-	   if((append[i][i] == 1.0) || append[i][i] == (-1.0)){ // this column is a pivot
-             //want to traverse column to turn the product matrices into an identity matrix
-	    
-	      jip = 0; // initializes count to 0
-	      
-	      if(append[i][i] == (-1.0)){ // convert the pivot column
-		yt = 0;
-		while(yt < appends){
-		   append[i][yt] = (-1.0)* append[i][yt];
-		yt++;
-		}
-	      }
-	      while(jip < cols){	
-		if(i != jip){ // only if the row is not a pivot column
-		   if(append[jip][i] < 0){
+    gaussJordan(append,cols,appends);
 
-			yt = 0;
-			num9 = append[jip][i]; //some number
-
-			while(yt < appends){ // go through all columns
-			   append[jip][yt] = append[jip][yt] - (num9 * append[i][yt]);
-			   yt++;
-			} 
-		   }
-		   if(append[jip][i] > 0){
-			yt = 0;
-			num9 = append[jip][i];
-			
-			while(yt < appends){ // go through all columns
-			   append[jip][yt] = append[jip][yt] - (num9 * append[i][yt]);
-			   yt++;
-			} 
-		   }
-		}	
- 	      jip++;   
-	      }
-	   }
-	i++;
-	}
-/*
-	printf("-------------ii--------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<cols){
-	   while(ut<appends){
-		printf("%f  ",append[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/
 
 	// now finished with gauss-jordan elimination
 
@@ -376,112 +180,45 @@ int main(int argc,char **argv){
 	j = 0;
 	i++;
 	}
-/*
-	printf("-------------iiii--------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<cols){
-	   while(ut<cols){
-		printf("%f  ",inverse[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/
-/*	printf("-------------ccccc22222--------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<cols){
-	   while(ut<rows){
-		printf("%f  ",matrixc[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/
+
 	double result2[cols][rows];
-/*	while(id < rows){
-	   while(i<cols){
-	   result[i][id] = '\0';
-	   i++;
-	   }
-	i = 0;
-	id++;
-	}
-*/
+
 	double num0,num4;
 	i = 0;
-	id = 0;
-	yu = 0;
+	int id = 0;
+	int yu = 0;
 	while(i < rows){
   	   while(id < cols){
 		result2[id][i] = 0.0;
 		while(yu < cols){
-//printf("multiplying ......I: %f   C:%f \n",inverse[id][yu],matrixc[yu][i]);
-		num0 = inverse[id][yu];
-		num4 = matrixc[yu][i];
-		result2[id][i] =result2[id][i] + (num0 * num4);
-		yu++;
-		}
-//		printf("result at col   %f\n",result2[id][i]);
-	   yu = 0;
-	   id++;
-	   }
+		    num0 = inverse[id][yu];
+		    num4 = matrixc[yu][i];
+		    result2[id][i] =result2[id][i] + (num0 * num4);
+		    yu++;
+        }
+        yu = 0;
+        id++;
+       }
 	id = 0;
 	i++;
 	}
 	// prints the product of X^-1 and X^T
-/*	printf("-------------WWWWW1/2--------------\n");
-	ui = 0;
-	ut = 0;
-	while(ui<cols){
-	   while(ut<rows){
-		printf("%f  ",result2[ui][ut]);
-		ut++;
-	   }
-	printf("\n");
-	ui++;
-	ut = 0;
-	}
-*/	
 	// Column Y is housVal[] column 
-/*
-	printf("---------------YYYYYYYYY------------------------\n");
-	ui = 0;
-	while(ui<train){
-	printf("%f\n",houseval[ui]);
-	ui++;
-	}
-*/	
+
 	double weight[rows];  // vertical vector
 	ui=0;
-	//ut= 0;
 	yu = 0;
 
 	while(ui<cols){
 		weight[ui] = 0;
 		while(yu<rows){
-//		printf("Multiplying.... R:   %f   H   %f\n",result2[ui][yu], houseval[yu]);
 		    weight[ui] += (result2[ui][yu] * houseval[yu]);
-//			printf("the product!!:     %f\n",weight[ui]);
-	
 		yu++;
 		}
-//	printf("the product------:     %f\n",weight[ui]);
 	yu = 0;
 	ui++;
 	}
-/*	
-	yu = 0;
-	while(yu < cols){
-	    printf("%f\n",weight[yu]);
-	yu++;
-	}
-*/
+
 	//final step!!! begin dissecting buffer2
 	int y;
 	q = 0;
