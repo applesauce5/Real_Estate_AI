@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "./RML/matrixops.h"
 
 void error(char *msg){
     perror(msg);
@@ -78,6 +79,15 @@ int main(int argc, char *argv[]){
     if(n < 0)
         error("ERROR on READ from the socket");
     printf("Message given:    %s\n", buffer);
+    printf("Testing RML part: \n");
+    printf("Result testA .....\n");
+    char* input[3];
+    char* train = "trainA.txt";
+    char* test = "testA.txt";
+    input[1]=train;
+    input[2]=test;
+    int args = 3;
+    printf("%d\n",learn(args,input));
     n = write(newsockfd,"MESSAGE RECEIVED!!",18);
     if(n < 0)
         error("ERROR on WRITE through socket");
