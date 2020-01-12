@@ -15,6 +15,9 @@ test:
 	gcc -Wall -o SocketProj2018/testServer.o SocketProj2018/testServer.c
 	gcc -Wall -fsanitize=address testServer.c -g -o testServer SocketProj2018/testServer.o RML/learn.o
 	gcc -Wall -fsanitize=address testClient.c -g -o testClient
+TEST:
+	make testClient
+	make testServer
 cleanTest:
 	rm -rf testServer
 	rm -rf testClient

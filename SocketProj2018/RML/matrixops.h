@@ -1,7 +1,7 @@
 #ifndef _INTERFACE_FILES_H_
 #define _INTERFACE_FILES_H_
 
-int learn(int argc,char **argv);
+int learn(int argc,char *argv[]);
 
 double* getHouseval();
 

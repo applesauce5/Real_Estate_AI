@@ -81,11 +81,11 @@ int main(int argc, char *argv[]){
     printf("Message given:    %s\n", buffer);
     printf("Testing RML part: \n");
     printf("Result testA .....\n");
-    char* input[3];
-    char* train = "trainA.txt";
-    char* test = "testA.txt";
-    input[1]=train;
-    input[2]=test;
+    char* input[3] ={"","./RML/trainA.txt","./RML/testA.txt"} ;
+    //char* train = "trainA.txt";
+    //char* test = "testA.txt";
+    //input[1]="trainA.txt";
+    //input[2]="testA.txt";
     int args = 3;
     printf("%d\n",learn(args,input));
     n = write(newsockfd,"MESSAGE RECEIVED!!",18);

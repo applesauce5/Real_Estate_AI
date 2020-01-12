@@ -216,12 +216,18 @@ void converge(int cols ,double inverse[][cols],double** append){
 }
 
 char* extractFl(char* buffer ,const char* path){
-   
+    
+    // OPEN way (via <unistd.h>)
+    if(access(path,F_OK)!=-1){
+        printf("%s DOES NOT EXIST via access()\n",path);
+    } else {
+        printf("%s DOES exist via access()\n", path);
+    }
     int fd = open(path,O_RDONLY);
-    // int errnum;
-
+    // int errnum;   
     if(fd == -1){
         //errnum=errno;
+        printf("Attempted to print access path, %s\n",path);
         fprintf(stderr,"Value of errno: %d\n", errno);
         printf("Error opening file\n");
         //fprintf(stderr,"Error opening file: %s \n", strerror( errnum ));
@@ -244,7 +250,6 @@ char* extractFl(char* buffer ,const char* path){
     }while(byteRead !=0);
 
     close(fd);
-
     return buffer; // file has been read into the buffer
 }
 

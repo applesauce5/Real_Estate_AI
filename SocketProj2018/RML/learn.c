@@ -37,7 +37,7 @@ int getNum(char*number,char*buffer,int size){
     ++q; // move past "new line" (\n) character
     return atoi(number);
 }
-int learn(int argc,char **argv){
+int learn(int argc,char *argv[]){
 
 	if(argc != 3){ // if there were ever more or less inputs
 	    printf("1error\n");
@@ -62,7 +62,8 @@ int learn(int argc,char **argv){
      * buffer2 contains test file
      *
      */
-
+    printf("HERE IS ARG1:   %s\n",argv[1]);
+    printf("HERE IS ARG2:   %s\n",argv[2]);
     char* buffer = extractFl(buff,argv[1]);
     char* buffer2 = extractFl(buff2,argv[2]);
 	
