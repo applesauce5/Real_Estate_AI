@@ -42,14 +42,14 @@ int main(int argc, char *argv[]){
     struct hostent *server;
 
     char buffer[256];
-    if(argc < 3){
+    if(argc < 2){
         fprintf(stderr,"usage %s hostname port\n",argv[0]);
         exit(0);
     }
 
     /* netserverinit() */
 
-    portno = atoi(argv[2]);
+    portno = (PORT);
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0){
         error("ERROR opening socket\n");
@@ -61,15 +61,9 @@ int main(int argc, char *argv[]){
     }
     bzero((char *) &serv_addr, sizeof(serv_addr));
 
-    printf("LINE 59\n");
-
     serv_addr.sin_family = AF_INET;
 
-    printf("LINE 63\n");
-
     bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-    
-    printf("Line 67: serv_addr.sin_port = htons(portno) \n");
 
     serv_addr.sin_port = htons(portno);
 
@@ -79,28 +73,30 @@ int main(int argc, char *argv[]){
     if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
         error(0);
 
-    
-    printf("Line 74: Please enter the message: \n");
-    bzero(buffer, 256);
+    bzero(buffer,256);
 
-    printf("Line 77: fgets(...)\n");
-    fgets(buffer, 255, stdin);
+    // interpret inputs here
+    while(strcmp(buffer,"econf\0")!=0){ 
+        printf("Please enter the message: \n");
+        bzero(buffer,256);
+        fgets(buffer, 255, stdin);
 
-    printf("Line 80: write(...)\n");
+        printf("Line 80: write(...)\n");
 
-    /* netwrite() */
-    n = write(sockfd, buffer, strlen(buffer));
-    if(n < 0){
-        error("ERROR writing to socket");
+        /* netwrite() */
+        n = write(sockfd, buffer, strlen(buffer));
+        if(n < 0){
+            error("ERROR writing to socket");
+        }
+        bzero(buffer, 256);
+
+        /* netread() */
+        n = read(sockfd, buffer, 255);
+        if(n < 0){
+            error("ERROR reading from socket");
+        }
+        printf("%s\n", buffer);
     }
-    bzero(buffer, 256);
-
-    /* netread() */
-    n = read(sockfd, buffer, 255);
-    if(n < 0){
-        error("ERROR reading from socket");
-    }
-    printf("%s\n", buffer);
     return 0;
 }
 

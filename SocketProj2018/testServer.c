@@ -8,6 +8,8 @@
 
 #include "./RML/matrixops.h"
 
+#define PORT 8080
+
 void error(char *msg){
     perror(msg);
     exit(1);
@@ -33,17 +35,13 @@ int main(int argc, char *argv[]){
 
     struct sockaddr_in serv_addr, cli_addr;
     int n;
-    if (argc < 2){
-        fprintf(stderr, "ERROR, no port provided\n");
-        exit(1);
-    }
 
-    printf("CHECK 5\n");
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0)
         error("ERROR trying to OPEN the socket");
+    
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    portno = atoi(argv[1]);
+    portno = (PORT);
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portno);
@@ -52,44 +50,55 @@ int main(int argc, char *argv[]){
         error("ERROR on BIND");
     }
 
-    printf("CHECK 3\n");
-
     int listenFD = listen(sockfd,5); 
     printf("LISTEN FD:  %i\n", listenFD);
-    printf("CHECK 024\n");
-
     clilen = sizeof(cli_addr);
     
-    printf("Checkpoint at --- newsockfd = accept(...)---\n");
+    printf("Currently listening to the open socket........\n");
     
-    // opportunity to handle multiple requests from server code 
+    // opportunity to handle multiple requests from client 
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
     
-    printf("ACCEPT FD   %i\n",newsockfd);
+    printf("accept() file descriptor  %i\n",newsockfd);
     
     if(newsockfd < 0)
         error("ERROR on ACCEPT");
+
+    bzero(buffer,256); 
+
+    while(!(strcmp(buffer,"exit\n\0") == 0)){ // comparison ----------------------
+        // Reading message given from the client 
+        bzero(buffer,256);
+        n = read(newsockfd,buffer,255);
+
+        if(n < 0)
+            error("ERROR on READ from the socket");
+        printf("Message given:\n");
+        printf("%s\n",buffer);
+        
+        if((strcmp(buffer,"testA\n") == 0)){ //The client is requesting testA
+            printf("Testing RML part:..... \n");
+            printf("Result testA .....\n");
+        
+            // List of sample inputs for the RML program
+            char* input[3] ={"","./RML/trainA.txt","./RML/testA.txt"} ;
     
-    printf("CHECK 2\n");
+            int args = 3;
+            printf("%d\n",learn(args,input)); //Requesting a call to linear regression part of the program
+        }
 
-    bzero(buffer,256);
-
-    printf("CHECK 1\n");
-    n = read(newsockfd,buffer,255);
-    if(n < 0)
-        error("ERROR on READ from the socket");
-    printf("Message given:    %s\n", buffer);
-    printf("Testing RML part: \n");
-    printf("Result testA .....\n");
-    char* input[3] ={"","./RML/trainA.txt","./RML/testA.txt"} ;
-    //char* train = "trainA.txt";
-    //char* test = "testA.txt";
-    //input[1]="trainA.txt";
-    //input[2]="testA.txt";
-    int args = 3;
-    printf("%d\n",learn(args,input));
-    n = write(newsockfd,"MESSAGE RECEIVED!!",18);
-    if(n < 0)
-        error("ERROR on WRITE through socket");
+        // Writing back to the client program
+        if(strcmp(buffer,"exit\n\0")==0){
+            n = write(newsockfd,"econf",5);
+            if(n<0){
+                error("ERROR on WRITE through socket");
+            }
+        } else {
+            n = write(newsockfd,"MESSAGE RECEIVED!!",18);
+            if(n < 0)
+                error("ERROR on WRITE through socket");
+        }
+    }
+    
     return 0;
 }
